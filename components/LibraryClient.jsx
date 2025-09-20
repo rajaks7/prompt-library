@@ -4,6 +4,8 @@ import { Search, Heart, Grid, List } from 'lucide-react'
 import Image from 'next/image'
 import PromptCard from './PromptCard'
 import ShareModal from './ShareModal'
+import Link from "next/link";
+
 
 export default function LibraryClient({ prompts, tools, categories }) {
   const [filters, setFilters] = useState({ 
@@ -205,13 +207,15 @@ const uniqueCategories = categories && categories.length > 0
         }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Link href="https://greycells.in">
             <Image 
               src="/GC Logo.png" 
-              alt="Grey Cells" 
+              alt="Grey Cells"              
               width={isClient && windowWidth < 640 ? 150 : 200} 
               height={isClient && windowWidth < 640 ? 45 : 60}
               style={{ height: 'auto' }}
             />
+            </Link>
           </div>
 
           {/* Title & Count */}

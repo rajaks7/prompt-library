@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { supabase } from "../../../lib/supabaseClient"
+import Link from "next/link";
+
 
 export default function PromptDetail() {
   const params = useParams()
@@ -190,6 +192,7 @@ export default function PromptDetail() {
             justifyContent: 'space-between'
           }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Link href="https://greycells.in">
               <Image 
                 src="/GC Logo.png" 
                 alt="Grey Cells" 
@@ -197,6 +200,7 @@ export default function PromptDetail() {
                 height={60}
                 style={{ height: 'auto' }}
               />
+              </Link>
             </div>
             <div style={{ 
               fontSize: '36px', 
@@ -240,6 +244,7 @@ export default function PromptDetail() {
             justifyContent: 'space-between'
           }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Link href="https://greycells.in">
               <Image 
                 src="/GC Logo.png" 
                 alt="Grey Cells" 
@@ -247,6 +252,7 @@ export default function PromptDetail() {
                 height={60}
                 style={{ height: 'auto' }}
               />
+              </Link>
             </div>
             <div style={{ 
               fontSize: '36px', 
@@ -297,6 +303,7 @@ export default function PromptDetail() {
           justifyContent: 'space-between'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Link href="https://greycells.in">
             <Image 
               src="/GC Logo.png" 
               alt="Grey Cells" 
@@ -304,6 +311,7 @@ export default function PromptDetail() {
               height={60}
               style={{ height: 'auto' }}
             />
+            </Link>
           </div>
           
           <div style={{ 

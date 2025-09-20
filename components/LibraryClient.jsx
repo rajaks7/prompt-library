@@ -301,7 +301,7 @@ const uniqueCategories = categories && categories.length > 0
                 <input
                   type="text"
                   name="search"
-                  placeholder={isClient && windowWidth < 640 ? "Search prompts..." : "Search prompts, tags, or model..."}
+                  placeholder={isClient && windowWidth < 640 ? "Search Prompts..." : "Search Prompts, Tags, or Model..."}
                   value={filters.search}
                   onChange={handleFilterChange}
                   style={{

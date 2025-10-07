@@ -50,7 +50,11 @@ export async function POST(req) {
     // If a friendly name is provided, map to ID; if not found, reject.
     let ai_tool_id = null;
     if (row.ai_tool_name) {
-      const { data: tools, error: tErr } = await supa.from('ai_tools').select('id,name').ilike('name', row.ai_tool_name.trim()).limit(1);
+      const { data: tools, error: tErr } = await supa
+        .from('ai_tools')
+        .select('id, name')
+        .eq('name', row.ai_tool_name.trim())
+        .limit(1);
       if (tErr) throw tErr;
       if (!tools || !tools.length) {
         return new Response(JSON.stringify({ error: `ai_tool_name "${row.ai_tool_name}" not found` }), { status: 400 });
@@ -62,7 +66,12 @@ export async function POST(req) {
 
     let category_id = null;
     if (row.category_name) {
-      const { data: cats, error: cErr } = await supa.from('categories').select('id,name').ilike('name', row.category_name.trim()).limit(1);
+      const { data: cats, error: cErr } = await supa
+        .from('categories')
+        .select('id, name')
+        .eq('name', row.category_name.trim())
+        .limit(1);
+
       if (cErr) throw cErr;
       if (!cats || !cats.length) {
         return new Response(JSON.stringify({ error: `category_name "${row.category_name}" not found` }), { status: 400 });
@@ -74,7 +83,12 @@ export async function POST(req) {
 
     let type_id = null;
     if (row.type_name) {
-      const { data: types, error: tpErr } = await supa.from('prompt_types').select('id,name').ilike('name', row.type_name.trim()).limit(1);
+      const { data: types, error: tpErr } = await supa
+        .from('prompt_types')
+        .select('id, name')
+        .eq('name', row.type_name.trim())
+        .limit(1);
+
       if (tpErr) throw tpErr;
       if (!types || !types.length) {
         return new Response(JSON.stringify({ error: `type_name "${row.type_name}" not found` }), { status: 400 });

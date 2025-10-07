@@ -1,5 +1,6 @@
 // app/api/ingest/route.js
 import { createClient } from '@supabase/supabase-js';
+import crypto from "crypto";
 
 const SUPA_URL = process.env.SUPA_URL;
 const SUPA_KEY = process.env.SUPA_SERVICE_ROLE;
@@ -127,6 +128,30 @@ export async function POST(req) {
       // otherwise if it already looks like a storage path (attachments/...), keep as-is
     }
 
+    // --- Compute content hash for deduplication ---
+    const baseString = [
+    row.title || '',
+    row.prompt_text || '',
+    row.attachment_filename || ''
+    ].join('|');
+    const content_hash = crypto.createHash('sha256').update(baseString).digest('hex');
+
+    // Check for existing row with same hash
+    const { data: existing, error: hashErr } = await supa
+    .from('prompts')
+    .select('id')
+    .eq('content_hash', content_hash)
+    .limit(1);
+
+    if (hashErr) throw hashErr;
+    if (existing && existing.length) {
+    return new Response(
+        JSON.stringify({ error: 'Duplicate entry (content hash already exists)' }),
+        { status: 409 }
+    );
+    }
+
+
     // prepare payload matching your prompts table
     const insertPayload = {
       title: row.title,
@@ -142,7 +167,8 @@ export async function POST(req) {
       rating: row.rating || null,
       credits_used: row.credits_used || null,
       usage_count: row.usage_count || null,
-      version: row.version || null
+      version: row.version || null,
+      content_hash
     };
 
     const { data: inserted, error: insertErr } = await supa.from('prompts').insert(insertPayload).select().single();

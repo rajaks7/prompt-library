@@ -1,6 +1,6 @@
 // app/api/ingest/route.js
 import { createClient } from '@supabase/supabase-js';
-import crypto from "crypto";
+import crypto from 'crypto';
 
 const SUPA_URL = process.env.SUPA_URL;
 const SUPA_KEY = process.env.SUPA_SERVICE_ROLE;
@@ -47,14 +47,37 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: 'Missing title or prompt_text' }), { status: 400 });
     }
 
+    // Normalize tags to JSON array (accepts JSON string, array, or comma-separated string)
+    let tagsValue = null;
+    if (row.tags) {
+      if (Array.isArray(row.tags)) {
+        tagsValue = row.tags;
+      } else if (typeof row.tags === 'string') {
+        // try parse as JSON first
+        try {
+          const parsed = JSON.parse(row.tags);
+          if (Array.isArray(parsed)) tagsValue = parsed;
+          else {
+            // fallback to comma-separated
+            tagsValue = row.tags.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        } catch (e) {
+          tagsValue = row.tags.split(',').map(s => s.trim()).filter(Boolean);
+        }
+      } else {
+        // unknown shape, ignore
+        tagsValue = null;
+      }
+    }
+
     // --- Resolve FKs without creating new ones (per your requirement) ---
-    // If a friendly name is provided, map to ID; if not found, reject.
     let ai_tool_id = null;
     if (row.ai_tool_name) {
+      const name = String(row.ai_tool_name).trim();
       const { data: tools, error: tErr } = await supa
         .from('ai_tools')
         .select('id, name')
-        .eq('name', row.ai_tool_name.trim())
+        .eq('name', name)
         .limit(1);
       if (tErr) throw tErr;
       if (!tools || !tools.length) {
@@ -67,12 +90,12 @@ export async function POST(req) {
 
     let category_id = null;
     if (row.category_name) {
+      const name = String(row.category_name).trim();
       const { data: cats, error: cErr } = await supa
         .from('categories')
         .select('id, name')
-        .eq('name', row.category_name.trim())
+        .eq('name', name)
         .limit(1);
-
       if (cErr) throw cErr;
       if (!cats || !cats.length) {
         return new Response(JSON.stringify({ error: `category_name "${row.category_name}" not found` }), { status: 400 });
@@ -84,12 +107,12 @@ export async function POST(req) {
 
     let type_id = null;
     if (row.type_name) {
+      const name = String(row.type_name).trim();
       const { data: types, error: tpErr } = await supa
         .from('prompt_types')
         .select('id, name')
-        .eq('name', row.type_name.trim())
+        .eq('name', name)
         .limit(1);
-
       if (tpErr) throw tpErr;
       if (!types || !types.length) {
         return new Response(JSON.stringify({ error: `type_name "${row.type_name}" not found` }), { status: 400 });
@@ -111,13 +134,13 @@ export async function POST(req) {
     let attachment_filename = row.attachment_filename || null;
     if (attachment_filename) {
       // If the user pasted only a Drive file ID, convert to uc?download format
-      const driveIdMatch = attachment_filename.match(/^[a-zA-Z0-9_-]{10,}$/);
-      if (driveIdMatch && !attachment_filename.includes('drive.google.com')) {
+      const driveIdMatch = String(attachment_filename).match(/^[a-zA-Z0-9_-]{10,}$/);
+      if (driveIdMatch && !String(attachment_filename).includes('drive.google.com')) {
         attachment_filename = `https://drive.google.com/uc?export=download&id=${attachment_filename}`;
       }
 
       // If attachment_filename contains a drive link or any http url, attempt fetch+upload
-      if (attachment_filename.startsWith('http')) {
+      if (String(attachment_filename).startsWith('http')) {
         const { filename, error } = await fetchAndUploadImage(attachment_filename);
         if (error) {
           return new Response(JSON.stringify({ error: `Image upload failed: ${error}` }), { status: 400 });
@@ -130,33 +153,32 @@ export async function POST(req) {
 
     // --- Compute content hash for deduplication ---
     const baseString = [
-    row.title || '',
-    row.prompt_text || '',
-    row.attachment_filename || ''
+      row.title || '',
+      row.prompt_text || '',
+      attachment_filename || ''
     ].join('|');
     const content_hash = crypto.createHash('sha256').update(baseString).digest('hex');
 
     // Check for existing row with same hash
     const { data: existing, error: hashErr } = await supa
-    .from('prompts')
-    .select('id')
-    .eq('content_hash', content_hash)
-    .limit(1);
+      .from('prompts')
+      .select('id')
+      .eq('content_hash', content_hash)
+      .limit(1);
 
     if (hashErr) throw hashErr;
     if (existing && existing.length) {
-    return new Response(
+      return new Response(
         JSON.stringify({ error: 'Duplicate entry (content hash already exists)' }),
         { status: 409 }
-    );
+      );
     }
-
 
     // prepare payload matching your prompts table
     const insertPayload = {
       title: row.title,
       prompt_text: row.prompt_text,
-      tags: row.tags ? (Array.isArray(row.tags) ? row.tags : JSON.parse(JSON.stringify(row.tags))) : null,
+      tags: tagsValue,
       ai_tool_id: ai_tool_id,
       category_id: category_id,
       type_id: type_id,

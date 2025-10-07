@@ -142,8 +142,7 @@ export async function POST(req) {
       rating: row.rating || null,
       credits_used: row.credits_used || null,
       usage_count: row.usage_count || null,
-      version: row.version || null,
-      published: row.published === true || String(row.published).toLowerCase() === 'true'
+      version: row.version || null
     };
 
     const { data: inserted, error: insertErr } = await supa.from('prompts').insert(insertPayload).select().single();

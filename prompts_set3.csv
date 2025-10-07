@@ -1,0 +1,111 @@
+title,prompt_text,output_text,ai_tool_name,type_name,category_name,tags,rating,output_status,credits_used,attachment_filename,usage_count,version,ai_tool_model
+Community Emergency Prep Pack,"Act as a community coordinator. Create a one-page Emergency Preparedness Pack for a small neighbourhood. Deliverables:
+- Printable checklist with essentials (supplies, contacts, evacuation steps) written in plain English and Tamil short lines.
+- 3 SMS/WhatsApp alert templates to notify neighbours quickly.
+- Simple roles matrix showing who is responsible for water, medical aid, elderly support, and communication.
+The final output must be structured for quick action and readability.","Preparedness kit: 1 checklist, 3 alert templates, roles matrix",ChatGPT,Grey Cells,Community,"[""emergency"", ""community""]",5,Successful,0,,987,1,GPT-4
+Local Business Google Post Pack,"Generate 10 Google Business Profile update posts for a local cafe. Each post should:
+- Be 120–150 characters
+- Include one call-to-action (Visit us, Order now, Try today)
+- Suggest 3 hashtags
+- Provide a short matching image caption idea
+At least one seasonal promotion and one customer story must be included.","10 pre-written Google posts with CTAs, hashtags, image captions",Perplexity,Grey Cells,Marketing,"[""google"", ""localbusiness""]",5,Successful,0,,198,1,Perplexity Pro
+60-Second Product Demo Reel,"Create a detailed script + storyboard for a 60-second vertical reel promoting a smart water bottle. Requirements:
+- 6 total scenes (problem hook, demo features, lifestyle b-roll, closing CTA)
+- Provide shot duration (in seconds)
+- Suggested on-screen captions (≤6 words)
+- BGM tempo recommendation (beats per minute)
+- Export spec: 9:16, 1080x1920, mp4","Storyboard: 6 scenes, timings, captions, music tempo, export settings",RunwayML,Grey Cells,Videos,"[""video"", ""demo""]",5,Successful,0,,972,1,Runway Text-to-Video
+E-commerce Product Photo Brief,"You are a creative director. Write a photographer’s brief for 6 hero images of a handcrafted leather wallet.
+- Specify lighting (soft diffused, top light, side shadow)
+- Angles: top shot, 45°, hand-hold, flat lay
+- Props: wooden desk, coffee cup, pen
+- Background colors: cream, grey, brown
+Also create one AI image prompt replicating a hero mockup: camera (50mm lens), lighting setup, neutral palette.",6 shot photo brief + AI image prompt for hero mockup,Leonardo,Grey Cells,E-comm,"[""photo"", ""brief""]",5,Successful,0,,712,1,Leonardo AI
+Accessible Website Quick Audit,"Act as an accessibility expert. Run a 20-point accessibility audit for a small business website.
+- Provide fixes categorized as High, Medium, Low priority
+- Include 2 code snippets: ARIA label usage and proper alt tag
+- Write a 1-paragraph non-technical summary for stakeholders explaining the importance of fixes","Audit report with prioritised issues, sample code, executive summary",ChatGPT,Grey Cells,Website,"[""accessibility"", ""audit""]",5,Successful,0,,1240,1,GPT-4
+Micro-Course: Launch Online Store,"Design a 5-module micro-course titled 'Launch Your Shop in 2 Weeks'. For each module provide:
+- Learning objectives
+- 3 micro-video topic titles
+- One hands-on exercise
+- 3 quiz questions
+- A downloadable 1-page checklist","5-module course outline with objectives, topics, quizzes and exercises",Claude,Grey Cells,Education,"[""course"", ""ecommerce""]",5,Successful,0,,395,1,Claude 2
+UGC Creator Script Pack,"Create 8 short UGC-style video scripts (10–25s each) for creators promoting a hair oil brand.
+- Script format: Hook, Demo, Emotional close, CTA
+- Each includes: suggested on-screen text, hashtags, tone of delivery (fun, caring, confident, playful)
+- Ensure each script has a unique angle: before-after, testimonial, lifestyle, expert tip, quick hack.",8 short UGC video scripts with captions and hashtags,HeyGen,Grey Cells,UGC,"[""ugc"", ""skincare""]",5,Successful,0,,867,1,HeyGen Pro
+Illustrated Map of Local Shops,"Design an illustrated neighbourhood map highlighting 8 small businesses.
+- Style: playful, hand-drawn, limited palette
+- Export: A3, 300 DPI, PNG with transparent background
+- Provide text for legend describing each shop
+- Mention icons for each shop type (coffee, book, tailor, pharmacy, grocery, etc.)",One illustrated map design spec with legend descriptions,DALL-E,Grey Cells,Community,"[""map"", ""illustration""]",5,Successful,0,,304,1,DALL-E 3
+Instagram Carousel Pack,"Prepare a 10-slide Instagram carousel titled 'Start a Side-Hustle in 30 Days'. Each slide must have:
+- Slide title line (bold)
+- 1–2 bullet actions
+- Quick practical tip
+Provide caption under 220 characters and CTA suggestion (Follow us, Sign up, Share).",10-slide IG carousel script + caption and CTA,Canva,Grey Cells,Social Media,"[""instagram"", ""carousel""]",5,Successful,0,,505,1,Canva Templates
+Mock Interview Coach,"Simulate a 15-question mock interview for a senior product designer.
+- Cover behavioural, portfolio and technical questions
+- Provide sample STAR answers for 5 key questions
+- Add 3 follow-up questions and interviewer notes
+- End with feedback summary on strengths and improvement areas","Mock interview script with 15 Qs, sample answers and feedback",Qwen,Grey Cells,Career,"[""interview"", ""design""]",5,Successful,0,,892,1,Qwen-2
+Pantry-First Recipe Generator,"User provides a list of pantry items. Generate 3 dinner recipes under 30 minutes.
+Each recipe must have:
+- Ingredients list
+- Step-by-step method
+- Spice-level indicator
+- Plating tip
+Also provide 1 vegetarian swap suggestion per recipe.",3 creative recipes with instructions and vegetarian alternatives,ChatGPT,Grey Cells,Lifestyle,"[""recipe"", ""cooking""]",5,Successful,0,,765,1,GPT-4
+Animated Logo Reveal,"Write an animation brief for an 8-second logo reveal.
+- Motion: from fade-in to bold reveal
+- Effects: glow, scale, rotation
+- Provide color keyframes and easing notes
+- Export formats: MP4 (1920x1080) and MOV with alpha channel
+- Style: bold, confident, modern",8-second animation storyboard and export specs,RunwayML,Grey Cells,Branding,"[""logo"", ""animation""]",5,Successful,0,,992,1,Runway Text-to-Video
+Children’s Picture-Book Image Prompts,"Generate 10 Midjourney prompts for a children’s story about a turtle learning to fly.
+- Each page: scene description, turtle expression, environment, lighting
+- Color palette: bright, playful
+- Style reference: Studio Ghibli or flat vector art
+- Add one cover art prompt including title text placement",10 Midjourney prompts for storybook illustrations,Midjourney,Grey Cells,Creative,"[""children"", ""storybook""]",5,Successful,0,,748,1,Midjourney v6
+Podcast Checklist + Jingle Brief,"Prepare:
+- Pre/during/post production checklist for a 30-min interview podcast
+- 10s jingle concept: mood, instruments, tempo (BPM)
+- Suggested episode outline with timestamps (intro, 3 segments, outro)","Podcast checklist, jingle brief and episode structure",Musicful,Grey Cells,Audio,"[""podcast"", ""jingle""]",5,Successful,0,,620,1,Musicful Studio
+15-Second Local Event Promo Reel,"Write a 15-second promo script for a weekend market pop-up.
+- Structure: 3 shots (crowd, stalls, happy customers)
+- On-screen text: ≤4 words each
+- Include 1 voiceover line
+- Suggest sound design (upbeat, festive)
+- Export spec: 9:16, captions enabled","15s reel script with captions, VO and sound design cues",Sora,Grey Cells,Events,"[""event"", ""promo""]",5,Successful,0,,252,1,Sora Gen-2
+Data-Backed Social Ad Variants,"Create 4 ad copy variants for an ergonomic chair social campaign.
+Each variant must include:
+- Headline (≤7 words)
+- Body (≤90 characters)
+- CTA (Buy now, Try today)
+- Audience persona + targeting suggestion
+- Suggested KPI to track success",4 ad copy sets with targeting and KPI notes,ChatGPT,Grey Cells,Marketing,"[""ads"", ""campaign""]",5,Successful,0,,1109,1,GPT-4
+AR Instagram Filter Concept,"Draft an AR filter concept for Instagram.
+- Theme: festival fun
+- 3 interactive effects (sparkles, text overlay, animation)
+- List needed assets (stickers, 3D objects)
+- Provide fallback static sticker version
+- Pitch line for filter promotion","AR filter brief with concept, effects and fallback plan",Leonardo,Grey Cells,Social Media,"[""instagram"", ""filter""]",5,Successful,0,,738,1,Leonardo AI
+Sustainable Packaging Mockups,"Generate 4 mockup prompts for biodegradable snack packaging.
+- Materials: kraft paper, cornstarch plastic, bamboo fiber
+- Visuals: logo placement, dieline notes
+- Lifestyle shots: picnic table, kitchen counter
+- Provide palette and composition notes",4 packaging mockup prompts with visuals and context,IdeoGram,Grey Cells,Designs,"[""packaging"", ""mockup""]",5,Successful,0,,315,1,IdeoGram Studio
+Fusion Song Hook + Beat Idea,"Compose a 30-second fusion track concept.
+- Lyrics: short chorus line in Tamil-English mix (8–12 words)
+- Mood: upbeat, hopeful
+- BPM: 120–130
+- Instruments: mridangam, bass synth, electric guitar
+- Structure: hook → drop → chorus",Lyrics + beat concept with tempo and instrument suggestions,Suno,Grey Cells,Creative,"[""music"", ""fusion""]",5,Successful,0,,118,1,Suno AI
+360° Virtual Store Tour,"Write a script for a 360° boutique store virtual tour.
+- Welcome narration (30s)
+- Hotspot copy for 8 zones (product highlights)
+- Suggested 360 photo/video shots
+- Hotspot actions: Buy, View details
+- Export spec: web-embed ready","Tour script with narration, hotspots, actions and export notes",Kling,Grey Cells,Website,"[""virtualtour"", ""store""]",5,Successful,0,,478,1,Kling VR Studio

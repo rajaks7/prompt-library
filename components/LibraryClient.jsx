@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, Heart, Grid, List } from 'lucide-react'
 import Image from 'next/image'
 import PromptCard from './PromptCard'
@@ -7,7 +7,7 @@ import ShareModal from './ShareModal'
 import Link from "next/link";
 
 
-export default function LibraryClient({ prompts, tools, categories }) {
+export default function LibraryClient({ initialPrompts = [], initialMeta = {}, tools, categories, pageSize = 20 }) {
   const [filters, setFilters] = useState({ 
     search: '', 
     tool: '',
@@ -20,6 +20,20 @@ export default function LibraryClient({ prompts, tools, categories }) {
   const [selectionMode, setSelectionMode] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
   const [isClient, setIsClient] = useState(false)
+
+  // paged data state
+  // ensure initial prompts are deduped
+  const dedupe = (arr) => {
+    const m = new Map();
+    for (const x of (arr || [])) if (!m.has(x.id)) m.set(x.id, x);
+    return Array.from(m.values());
+  }
+  const [promptsState, setPromptsState] = useState(dedupe(initialPrompts || []))
+  const [meta, setMeta] = useState(initialMeta || {})
+  const [page, setPage] = useState((initialMeta && initialMeta.page) || 1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const abortRef = useRef(null)
 
   useEffect(() => {
     setIsClient(true)
@@ -39,15 +53,17 @@ export default function LibraryClient({ prompts, tools, categories }) {
   }, [])
 
   useEffect(() => {
-  const handleScroll = () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
-      console.log('Load more prompts');
-    }
-  };
-  
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, []);
+    const handleScroll = () => {
+      if (isLoadingMore || isLoading) return
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 900) {
+        // near bottom -> load more
+        if (meta?.hasMore) fetchPrompts(page + 1, true)
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [meta, page, isLoadingMore, isLoading]);
 
   // selection action UI state + handlers
   const [showShareModal, setShowShareModal] = useState(false)
@@ -84,56 +100,68 @@ export default function LibraryClient({ prompts, tools, categories }) {
     document.body.removeChild(el)
   }
 
-  // Filter & sort
-  const filteredPrompts = useMemo(() => {
-    let filtered = [...prompts]
+  // displayedPrompts are the server-provided prompts (already filtered per current filters)
+  const displayedPrompts = promptsState
 
-    if (filters.search) {
-      const query = filters.search.toLowerCase()
-      filtered = filtered.filter(p =>
-        (p.title || '').toLowerCase().includes(query) ||
-        (p.ai_tool_model || '').toLowerCase().includes(query) ||
-        (Array.isArray(p.tags) && p.tags.some(tag => tag.toLowerCase().includes(query)))
-      )
-    }
+  // Fetch prompts from API with current filters
+  const buildQuery = (pg) => {
+    const params = new URLSearchParams()
+    params.set('page', pg)
+    params.set('limit', pageSize)
+    if (filters.search) params.set('search', filters.search)
+    if (filters.tool) params.set('tool', filters.tool)
+    if (filters.category) params.set('category', filters.category)
+    if (filters.rating) params.set('rating', filters.rating)
+    if (filters.favoritesOnly) params.set('favoritesOnly', 'true')
+    // convert sort from created_at_desc to created_at.desc
+    const m = filters.sort.match(/(.+)_(asc|desc)$/)
+    if (m) params.set('sort', `${m[1]}.${m[2]}`)
+    return params.toString()
+  }
 
-    if (filters.tool) {
-      filtered = filtered.filter(p => p.tool_name === filters.tool)
-    }
+  const fetchPrompts = async (pg = 1, append = false) => {
+    try {
+      if (append) setIsLoadingMore(true)
+      else setIsLoading(true)
 
-    if (filters.category) {
-      filtered = filtered.filter(p => p.category_name === filters.category)
-    }
+      // abort previous
+      if (abortRef.current) abortRef.current.abort()
+      abortRef.current = new AbortController()
 
-    if (filters.rating) {
-      filtered = filtered.filter(p => (p.rating || 0) >= parseFloat(filters.rating))
-    }
-
-    if (filters.favoritesOnly) {
-      filtered = filtered.filter(p => p.is_favorite)
-    }
-
-    filtered.sort((a, b) => {
-      switch (filters.sort) {
-        case 'created_at_desc':
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0) || a.id.localeCompare(b.id)
-        case 'created_at_asc':
-        return new Date(a.created_at || 0) - new Date(b.created_at || 0) || b.id.localeCompare(a.id)
-        case 'title_asc':
-          return (a.title || '').localeCompare(b.title || '')
-        case 'title_desc':
-          return (b.title || '').localeCompare(a.title || '')
-        case 'rating_desc':
-          return (b.rating || 0) - (a.rating || 0)
-        case 'rating_asc':
-          return (a.rating || 0) - (b.rating || 0)
-        default:
-          return 0
+      const base = window?.location?.origin || ''
+      const qs = buildQuery(pg)
+      const res = await fetch(`${base}/api/prompts?${qs}`, { signal: abortRef.current.signal })
+      if (!res.ok) {
+        console.error('Failed to fetch prompts', res.statusText)
+        return
       }
-    })
+      const json = await res.json()
+      const { data = [], meta: newMeta = {} } = json
 
-    return filtered
-  }, [prompts, filters])
+      if (append) {
+        setPromptsState(prev => {
+          const combined = [...prev, ...data]
+          return dedupe(combined)
+        })
+      } else {
+        setPromptsState(dedupe(data))
+      }
+      setMeta(newMeta)
+      setPage(newMeta.page || pg)
+    } catch (err) {
+      if (err.name === 'AbortError') return
+      console.error('Error fetching prompts', err)
+    } finally {
+      setIsLoading(false)
+      setIsLoadingMore(false)
+    }
+  }
+
+  // when filters change, reset to page 1 and fetch
+  useEffect(() => {
+    fetchPrompts(1, false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.search, filters.tool, filters.category, filters.rating, filters.sort, filters.favoritesOnly])
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target
@@ -173,10 +201,10 @@ export default function LibraryClient({ prompts, tools, categories }) {
   // Derived unique lists for filter dropdowns
   const uniqueTools = tools && tools.length > 0 
   ? tools.map(tool => tool.name).sort()
-  : [...new Set(prompts.map(p => p.tool_name).filter(Boolean))].sort()
-const uniqueCategories = categories && categories.length > 0
+  : [...new Set(promptsState.map(p => p.tool_name).filter(Boolean))].sort()
+  const uniqueCategories = categories && categories.length > 0
   ? categories.map(category => category.name).sort()
-  : [...new Set(prompts.map(p => p.category_name).filter(Boolean))].sort()
+  : [...new Set(promptsState.map(p => p.category_name).filter(Boolean))].sort()
 
   // Responsive grid columns
   const getGridColumns = () => {
@@ -248,8 +276,8 @@ const uniqueCategories = categories && categories.length > 0
               boxShadow: '0 4px 15px rgba(102, 126, 234, 0.25)'
             }}>
               {filters.search || filters.tool || filters.category || filters.rating || filters.favoritesOnly 
-                ? `${filteredPrompts.length} of ${prompts.length} prompts`
-                : `${prompts.length} prompts`
+                ? `${meta.filteredTotal ?? 0} of ${meta.overallTotal ?? 0} prompts`
+                : `${meta.overallTotal ?? (promptsState.length)} prompts`
               }
             </div>
           </div>
@@ -641,7 +669,7 @@ const uniqueCategories = categories && categories.length > 0
         margin: '0 auto', 
         padding: isClient && windowWidth < 640 ? '20px 8px' : '32px 24px'
       }}>
-        {filteredPrompts.length === 0 ? (
+  {displayedPrompts.length === 0 ? (
           <div style={{ 
             textAlign: 'center', 
             padding: isClient && windowWidth < 640 ? '32px 0' : '64px 0',
@@ -670,7 +698,7 @@ const uniqueCategories = categories && categories.length > 0
             justifyItems: 'center',
             gap: isClient && windowWidth < 640 ? '16px' : '20px'
           }}>
-            {filteredPrompts.map(prompt => (
+            {displayedPrompts.map(prompt => (
               <PromptCard
                 key={prompt.id}
                 prompt={prompt}
@@ -704,7 +732,7 @@ const uniqueCategories = categories && categories.length > 0
                   </label>
                 )}
               </div>
-              <div style={{ fontSize: 13, color: '#4b5563' }}>{filteredPrompts.length} prompts</div>
+              <div style={{ fontSize: 13, color: '#4b5563' }}>{meta.filteredTotal ?? displayedPrompts.length} prompts</div>
             </div>
 
             <div style={{ overflowX: 'auto', minWidth: '600px' }}>
@@ -725,7 +753,7 @@ const uniqueCategories = categories && categories.length > 0
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredPrompts.map((p) => (
+                  {displayedPrompts.map((p) => (
                     <tr key={p.id} style={{ borderBottom: '1px solid #f1f3f4', cursor: 'pointer' }}>
                       {selectionMode && (
                         <td style={{ padding: '10px 12px' }}>
@@ -885,11 +913,19 @@ const uniqueCategories = categories && categories.length > 0
         )}
       </div>
       
+      <div style={{ textAlign: 'center', marginTop: 20 }}>
+        {meta.hasMore ? (
+          <button onClick={() => fetchPrompts(page + 1, true)} style={{ padding: '10px 18px', borderRadius: 8, background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer' }}>
+            {isLoadingMore ? 'Loading...' : 'Load more'}
+          </button>
+        ) : null}
+      </div>
+
       <ShareModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
         selectedPrompts={selectedPrompts}
-        prompts={filteredPrompts}
+        prompts={displayedPrompts}
       />
       <style jsx global>{`
       body, html {

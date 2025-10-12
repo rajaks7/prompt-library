@@ -106,7 +106,10 @@ export default function PromptDetail() {
         .update({ is_favorite: newStatus })
         .eq("id", id)
 
-      if (!error) {
+      if (error) {
+        // If the column doesn't exist, Supabase will error — ignore and warn instead
+        console.warn('Could not update favorite status (column may not exist):', error.message)
+      } else {
         setPrompt(prev => ({ ...prev, is_favorite: newStatus }))
       }
     } catch (err) {

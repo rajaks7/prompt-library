@@ -12,6 +12,7 @@ export default function PromptCard({
   onCardView = () => {}
 }) {
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [imageError, setImageError] = useState(false)
 
@@ -80,7 +81,14 @@ export default function PromptCard({
     }
     
     onCardView(id)
-    router.push(`/library/${id}`)
+    try {
+      setIsLoading(true)
+      // await navigation so we can hide loader when done
+      await router.push(`/library/${id}`)
+    } finally {
+      // allow the navigation to proceed; in case navigation is synchronous in some envs
+      setTimeout(() => setIsLoading(false), 300)
+    }
   }
 }
 
@@ -126,6 +134,28 @@ export default function PromptCard({
 }}
 
     >
+      {/* Loading overlay */}
+      {isLoading && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(255,255,255,0.8)',
+          zIndex: 60,
+          borderRadius: 16
+        }}>
+          <div style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            border: '4px solid #e5e7eb',
+            borderTopColor: '#3b82f6',
+            animation: 'pc-spin 1s linear infinite'
+          }} />
+        </div>
+      )}
       {/* selection checkbox */}
       {selectionMode && (
         <div style={{ position: 'absolute', margin: 12, zIndex: 30 }}>
@@ -350,4 +380,19 @@ export default function PromptCard({
     </div>
 </div>
 )
+}
+
+// inline global styles for spinner animation
+const styleTag = (`
+@keyframes pc-spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+`)
+
+if (typeof document !== 'undefined') {
+  const id = 'pc-spinner-style'
+  if (!document.getElementById(id)) {
+    const s = document.createElement('style')
+    s.id = id
+    s.innerHTML = styleTag
+    document.head.appendChild(s)
+  }
 }

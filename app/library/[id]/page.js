@@ -29,6 +29,7 @@ export default function PromptDetail() {
   
   const [prompt, setPrompt] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [navLoading, setNavLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
   const [relatedPrompts, setRelatedPrompts] = useState([])
@@ -287,6 +288,26 @@ export default function PromptDetail() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f1f1f1' }}>
+      {navLoading && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            border: '6px solid rgba(255,255,255,0.25)',
+            borderTopColor: 'white',
+            animation: 'pd-spin 1s linear infinite'
+          }} />
+        </div>
+      )}
       {/* Header */}
       <header style={{ 
         backgroundColor: 'white', 
@@ -347,8 +368,18 @@ export default function PromptDetail() {
         }}>
           {/* Left - Back Button */}
           <button
-            onClick={() => router.push('/library')}
+            onClick={async () => {
+              setNavLoading(true)
+              try {
+                await router.push('/library')
+              } catch (err) {
+                console.error('Navigation error:', err)
+                setNavLoading(false)
+              }
+            }}
             style={{
+              // ensure this stays on the first row on small screens
+              order: window.innerWidth < 768 ? 1 : 0,
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
@@ -373,24 +404,27 @@ export default function PromptDetail() {
 
           {/* Center - Prompt Title */}
           <div style={{
+            // put title on second row on small screens
+            order: window.innerWidth < 768 ? 2 : 1,
             color: 'white',
             fontSize: window.innerWidth < 640 ? '16px' : window.innerWidth < 768 ? '18px' : '24px',
             fontWeight: '700',
             fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
             textAlign: 'center',
-            flex: '1',
-            minWidth: '0',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
+            // On small screens make the title take full width so it wraps to the next line
+            flex: window.innerWidth < 768 ? '0 0 100%' : '1',
+            minWidth: 0,
+            overflow: window.innerWidth < 768 ? 'visible' : 'hidden',
+            textOverflow: window.innerWidth < 768 ? 'unset' : 'ellipsis',
             whiteSpace: window.innerWidth < 768 ? 'normal' : 'nowrap',
-            margin: '0 16px',
+            margin: window.innerWidth < 768 ? '8px 16px' : '0 16px',
             lineHeight: window.innerWidth < 768 ? '1.3' : '1.4'
           }}>
             {prompt.title}
           </div>
 
           {/* Right - Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0, order: window.innerWidth < 768 ? 1 : 2 }}>
             <button
               onClick={() => window.print()}
               style={{
@@ -1219,6 +1253,9 @@ export default function PromptDetail() {
         margin: 0 !important;
         padding: 0 !important;
       }
+    `}</style>
+    <style>{`
+      @keyframes pd-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     `}</style>
     </div>
   )
